@@ -42,3 +42,77 @@ class AdminTest(LiveServerTestCase):
     self.assertEquals(response.status_code, 200)
     self.assertTrue('Log out' in response.content)
 
+  def test_create_post(self):
+    # Log in
+    self.client.login(username='ali', password='alikat')
+
+    # Check response
+    response = self.client.get('/admin/blogengine/post/add/')
+    self.assertEquals(response.status_code, 200)
+    
+    # Create new post
+    response = self.client.post(
+        '/admin/blogengine/post/add/', {
+            'title': 'My first post',
+            'text': 'Hello World',
+            'pub_date_0': '2014-07-11',
+            'pub_date_1': '22:00:00'},
+        follow=True)
+
+    self.assertEquals(response.status_code, 200)
+    self.assertTrue('added successfully' in response.content)
+
+    all_posts = Post.objects.all()
+    self.assertEquals(len(all_posts), 1)
+  
+  def test_edit_post(self):
+    post = Post()
+    post.title = 'My first post'
+    post.text = 'Hello World'
+    post.pub_date = timezone.now()
+    post.save()
+
+    self.client.login(username='ali', password='alikat')
+
+    # Edit the post
+    response = self.client.post(
+        '/admin/blogengine/post/1/', {
+            'title': 'My second post',
+            'text': 'Hello world part 2',
+            'pub_date_0': '2014-07-12',
+            'pub_date_1': '22:00:00'},
+        follow=True
+    )
+    self.assertEquals(response.status_code, 200)
+
+    # Check changed successfully
+    self.assertTrue('changed successfully' in response.content)
+
+    all_posts = Post.objects.all()
+    self.assertEquals(len(all_posts), 1)
+    only_post = all_posts[0]
+    self.assertEquals(only_post.title, 'My second post')
+    self.assertEqual(only_post.text, 'Hello world part 2')
+
+  def test_delete_post(self):
+    post = Post()
+    post.title = 'My first post'
+    post.text = 'Hello World'
+    post.pub_date = timezone.now()
+    post.save()
+    
+    self.client.login(username='ali', password='alikat')
+
+    # Delete the post
+    response = self.client.post(
+        '/admin/blogengine/post/1/delete/',
+        {'post': 'yes'}, follow=True)
+    self.assertEquals(response.status_code, 200)
+    
+    self.assertTrue('deleted successfully' in response.content)
+    all_posts = Post.objects.all()
+    self.assertEquals(len(all_posts), 0)
+
+
+
+
