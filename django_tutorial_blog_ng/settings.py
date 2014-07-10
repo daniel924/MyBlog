@@ -69,6 +69,8 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'templates')]
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
