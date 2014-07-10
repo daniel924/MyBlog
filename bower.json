@@ -1,0 +1,21 @@
+{
+  "name": "blog_django",
+  "version": "1.5.1",
+  "homepage": "https://github.com/daniel924/MyBlog",
+  "authors": [
+    "Daniel Ladenheim <ladenheim@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "blogengine/static/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.2.0",
+    "html5-boilerplate": "~4.3.0"
+  }
+}
