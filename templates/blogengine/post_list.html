@@ -9,5 +9,13 @@
       <h3>{{ post.pub_date}}</h3>
       {{ post.text|custom_markdown }}
     </div>
+    <a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a>
     {% endfor %}
+
+    {% if page_obj.has_previous %}
+    <a href="/{{ page_obj.previous_page_number }}/">Previous Page</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+    <a href="//{{ page_obj.next_page_number }}/">Next Page</a>
+    {% endif %}
   {% endblock %}
