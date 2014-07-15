@@ -1,23 +1,34 @@
 from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
-from blogengine.models import Post
+from blogengine.models import Post, Category
 
 import markdown
 
 
+def CreateCategory():
+  category = Category()
+  category.name = 'Robots'
+  category.description = 'All about robots'
+  category.save()
+  return category
+    
 class PostTest(TestCase):
 
   def test_create_post(self):
+    category = CreateCategory()
+
     post = Post()
     post.title = 'My first post'
     post.text = 'This is my first blog post'
     post.pub_date = timezone.now()
+    post.category = category
     post.save()
 
     all_posts = Post.objects.all()
     self.assertEquals(len(all_posts), 1)
     only_post = all_posts[0]
-    
+    self.assertEquals(only_post, post)
+
     self.assertEquals(only_post, post)
     self.assertEquals(only_post.title, 'My first post')
     self.assertEquals(only_post.text, 'This is my first blog post')
@@ -27,12 +38,17 @@ class PostTest(TestCase):
     self.assertEquals(only_post.pub_date.hour, post.pub_date.hour)
     self.assertEquals(only_post.pub_date.minute, post.pub_date.minute)
     self.assertEquals(only_post.pub_date.second, post.pub_date.second)
+    self.assertEquals(only_post.category.name, 'Robots')
+
 
 class AdminTest(LiveServerTestCase):
   fixtures = ['users.json']
 
   def setUp(self):
     self.client = Client()
+
+  def Login(self):
+    self.client.login(username='ali', password='alikat')
 
   def test_login(self):
     response = self.client.get('/admin/')
@@ -45,7 +61,28 @@ class AdminTest(LiveServerTestCase):
     self.assertEquals(response.status_code, 200)
     self.assertTrue('Log out' in response.content)
 
+  def test_create_category(self):
+    self.Login()
+
+    # Check response
+    response = self.client.get('/admin/blogengine/category/add/')
+    self.assertEquals(response.status_code, 200)
+
+    response = self.client.post('/admin/blogengine/category/add/', {
+        'name': 'Robots',
+        'description': 'All about robots'
+        },
+        follow=True
+    )
+    self.assertEquals(response.status_code, 200)
+    self.assertTrue('added successfully' in response.content)
+
+    all_categories = Category.objects.all()
+    self.assertEquals(len(all_categories), 1)
+
   def test_create_post(self):
+    CreateCategory()
+    
     # Log in
     self.client.login(username='ali', password='alikat')
 
@@ -59,7 +96,8 @@ class AdminTest(LiveServerTestCase):
             'title': 'My first post',
             'text': 'Hello World',
             'pub_date_0': '2014-07-11',
-            'pub_date_1': '22:00:00'},
+            'pub_date_1': '22:00:00',
+            'category': '1'},
         follow=True)
 
     self.assertEquals(response.status_code, 200)
@@ -67,8 +105,38 @@ class AdminTest(LiveServerTestCase):
 
     all_posts = Post.objects.all()
     self.assertEquals(len(all_posts), 1)
-  
+
+  def test_edit_category(self):
+    CreateCategory()
+    self.Login()
+
+    response = self.client.post('/admin/blogengine/category/1/', {
+        'name': 'Kitties',
+        'description': 'All about kitties'
+        }, follow=True)
+    
+    self.assertTrue(response.status_code, 200)
+    self.assertTrue('changed successfully' in response.content)
+    all_categories = Category.objects.all()
+    self.assertEquals(len(all_categories), 1)
+    only_category = all_categories[0]
+    self.assertEquals(only_category.name, 'Kitties')
+
+  def test_delete_category(self):
+    CreateCategory()
+    self.Login()
+
+    response = self.client.post('/admin/blogengine/category/1/delete/', {
+        'post': 'yes'
+      }, follow=True)
+    self.assertEquals(response.status_code, 200)
+    self.assertTrue('deleted successfully' in response.content)
+    all_categories = Category.objects.all()
+    self.assertEquals(len(all_categories), 0)
+
   def test_edit_post(self):
+    CreateCategory()
+    
     post = Post()
     post.title = 'My first post'
     post.text = 'Hello World'
@@ -83,7 +151,8 @@ class AdminTest(LiveServerTestCase):
             'title': 'My second post',
             'text': 'Hello world part 2',
             'pub_date_0': '2014-07-12',
-            'pub_date_1': '22:00:00'},
+            'pub_date_1': '22:00:00',
+            'category': '1'},
         follow=True
     )
     self.assertEquals(response.status_code, 200)
@@ -98,13 +167,15 @@ class AdminTest(LiveServerTestCase):
     self.assertEqual(only_post.text, 'Hello world part 2')
 
   def test_delete_post(self):
+    CreateCategory()
+    
     post = Post()
     post.title = 'My first post'
     post.text = 'Hello World'
     post.pub_date = timezone.now()
     post.save()
     
-    self.client.login(username='ali', password='alikat')
+    self.Login()
 
     # Delete the post
     response = self.client.post(
@@ -121,10 +192,13 @@ class PostViewTest(LiveServerTestCase):
     self.client = Client()
 
   def test_index(self):
+    category = CreateCategory()
+    
     post = Post()
     post.title = 'My first post'
     post.text = 'Hello [World](http://127.0.0.1:8000/)'
     post.pub_date = timezone.now()
+    post.category = category
     post.save()
 
     all_posts = Post.objects.all()
@@ -134,7 +208,6 @@ class PostViewTest(LiveServerTestCase):
     self.assertEquals(response.status_code, 200)
 
     self.assertTrue(post.title in response.content)
-    # self.assertTrue(post.text in response.content)
     self.assertTrue(markdown.markdown(post.text) in response.content)
 
     self.assertTrue(str(post.pub_date.year) in response.content)
