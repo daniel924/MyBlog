@@ -89,12 +89,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Jenkins
-INSTALLED_APPS += ('django_jenkins',)
-JENKINS_TASKS = (
-    'django_jenkins.tasks.run_pylint',
-    'django_jenkins.tasks.with_coverage',
-)
 PROJECT_APPS = ['blogengine']
 
 # Heroku config
