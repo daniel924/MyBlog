@@ -2,6 +2,9 @@ from django.test import TestCase, LiveServerTestCase, Client
 from django.utils import timezone
 from blogengine.models import Post, Category, Tag
 
+from django.contrib.flatpages.models import FlatPage
+from django.contrib.sites.models import Site
+
 import markdown
 
 
@@ -52,6 +55,11 @@ class PostTest(TestCase):
     self.assertEquals(only_post.category.name, 'Robots')
 
 
+class BaseAcceptenceTest(LiveServerTestCase):
+  def setUp(self):
+    self.client = Client()
+
+
 class TagTest(TestCase):
   def test_create_tag(self):
     # Create the tag
@@ -71,7 +79,7 @@ class TagTest(TestCase):
     self.assertEquals(only_tag.description, 'The Python programming language')
 
 
-class AdminTest(LiveServerTestCase):
+class AdminTest(BaseAcceptenceTest):
   fixtures = ['users.json']
 
   def setUp(self):
@@ -292,7 +300,7 @@ class AdminTest(LiveServerTestCase):
     self.assertEquals(len(all_tags), 0)
 
 
-class PostViewTest(LiveServerTestCase):
+class PostViewTest(BaseAcceptenceTest):
   def setUp(self):
     self.client = Client()
 
