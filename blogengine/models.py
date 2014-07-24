@@ -46,7 +46,7 @@ class Post(models.Model):
   text = models.TextField()
   category = models.ForeignKey(Category, blank=True, null=True)
   slug = models.SlugField(max_length=40, unique=True, blank=True, null=True)
-  tags = models.ManyToManyField(Tag, blank=True)
+  tags = models.ManyToManyField(Tag, blank=True, null=True)
 
   def get_absolute_url(self):
     return "/%s/%s/%s/" % (self.pub_date.year, self.pub_date.month, self.slug)
