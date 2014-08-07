@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.conf.urls import patterns, url
+from django.conf.urls.static import static
 from django.views.generic import ListView, DetailView
 from blogengine.models import Post, Category, Tag
 from blogengine.views import CategoryListView, TagListView
@@ -26,4 +28,8 @@ urlpatterns = patterns('',
        paginate_by=5,
        model=Tag,
        )),
+    
+    # Media
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+    'document_root': settings.MEDIA_ROOT}),
 )

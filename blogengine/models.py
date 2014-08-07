@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.utils.text import slugify
 
@@ -39,7 +41,6 @@ class Tag(models.Model):
   def __unicode__(self):
     return self.name
 
-
 class Post(models.Model):
   title = models.CharField(max_length=200)
   pub_date = models.DateTimeField()
@@ -47,6 +48,7 @@ class Post(models.Model):
   category = models.ForeignKey(Category, blank=True, null=True)
   slug = models.SlugField(max_length=40, unique=True, blank=True, null=True)
   tags = models.ManyToManyField(Tag, blank=True, null=True)
+  image = models.ImageField(upload_to="images", blank=True, null=True)
 
   def get_absolute_url(self):
     return "/%s/%s/%s/" % (self.pub_date.year, self.pub_date.month, self.slug)
