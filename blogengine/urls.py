@@ -1,10 +1,12 @@
 from django.conf import settings
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.views.generic import ListView, DetailView
 from blogengine.models import Post, Category, Tag
 from blogengine.views import CategoryListView, TagListView
 
+admin.autodiscover()
 urlpatterns = patterns('',
     # Index
     url('^$', ListView.as_view(
@@ -32,4 +34,6 @@ urlpatterns = patterns('',
     # Media
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
     'document_root': settings.MEDIA_ROOT}),
+
+    url(r'^admin/', include(admin.site.urls)),
 )

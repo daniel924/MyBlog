@@ -4,13 +4,13 @@ from blogengine.models import Category, Post, Tag
 
 # Create your views here.
 class CategoryListView(ListView):
-    def get_queryset(self):
-      slug = self.kwargs['slug']
-      try:
-          category = Category.objects.get(slug=slug)
-          return Post.objects.filter(category=category)
-      except Category.DoesNotExist:
-          return Post.objects.none()
+  def get_queryset(self):
+    slug = self.kwargs['slug']
+    try:
+      category = Category.objects.get(slug=slug)
+      return Post.objects.filter(category=category)
+    except Category.DoesNotExist:
+      return Post.objects.none()
 
 class TagListView(ListView):
   def get_queryset(self):
@@ -20,3 +20,6 @@ class TagListView(ListView):
       return tag.post_set.all()
     except Tag.DoesNotExist:
       return Post.objects.none()
+
+def get_categories():
+  return Category.objects.all()

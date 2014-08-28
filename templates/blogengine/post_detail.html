@@ -5,7 +5,9 @@
     {% block content %}
       <div class="post col-md-12">
         <h1>{{ object.title }}</h1>
-        <h3>{{ object.pub_date }}</h3>
+        {% if post.image %}
+        <img src="{{ post.image.url }}"/> 
+        {% endif %}
         {{ object.text|custom_markdown }}
       </div>
       {% if object.category %}

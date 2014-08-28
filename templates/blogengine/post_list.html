@@ -23,6 +23,8 @@
       {% endif %}
       <br><hr><br>
     {% endfor %}
+    {% if user.is_staff %}
+    {% endif %}
 
     <ul class="pager">
     {% if page_obj.has_previous %}

@@ -1,7 +1,9 @@
 import os
 
+from django.contrib import admin
 from django.db import models
 from django.utils.text import slugify
+
 
 # Create your models here.
 
@@ -52,6 +54,9 @@ class Post(models.Model):
 
   def get_absolute_url(self):
     return "/%s/%s/%s/" % (self.pub_date.year, self.pub_date.month, self.slug)
+
+  def get_admin_url(self):
+    return 'admin/'
 
   def __unicode__(self):
     return self.title
